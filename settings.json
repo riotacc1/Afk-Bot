@@ -1,13 +1,13 @@
 {
   "bot-account": {
-    "username": "bot",
-    "password": "your_password",
-    "type": "microsoft"
+    "username": "RiotHub",
+    "password": "",
+    "type": ""
   },
 
   "server": {
-    "ip": "localhost",
-    "port": 25565,
+    "ip": "162.55.199.41",
+    "port": 31096,
     "version": "1.19.3"
   },
 
@@ -25,7 +25,7 @@
     },
 
     "anti-afk": {
-      "enabled": false,
+      "enabled": true,
       "sneak": false,
       "jump": false,
       "rotate": false,
@@ -43,20 +43,17 @@
     },
 
     "chat-messages": {
-      "enabled": false,
+      "enabled": true,
       "repeat": true,
-      "repeat-delay": 60,
+      "repeat-delay": 86400,
 
       "messages": [
-        "I'm a regular player ",
-        "My owner is urFate_ ",
-        "I want be alone ",
-        "Visit my GitHub page! (urFate/Afk-Bot)"
+        "This server is a private server!"
       ]
     },
 
     "chat-log": true,
-    "auto-reconnect": false,
+    "auto-reconnect": true,
     "auto-reconnect-delay": 5000
   }
 }

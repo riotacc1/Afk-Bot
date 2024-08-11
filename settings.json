@@ -1,12 +1,26 @@
 {
-  "bot-account": {
-    "username": "WatchDog1",
-    "username": "WatchDog2",
-    "username": "WatchDog3",
-    "username": "WatchDog4",
-    "password": "",
-    "type": ""
-  },
+  "bot-accounts": [
+    {
+      "username": "WatchDog1",
+      "password": "",
+      "type": ""
+    },
+    {
+      "username": "WatchDog2",
+      "password": "",
+      "type": ""
+    },
+    {
+      "username": "WatchDog3",
+      "password": "",
+      "type": ""
+    },
+    {
+      "username": "WatchDog4",
+      "password": "",
+      "type": ""
+    }
+  ],
 
   "server": {
     "ip": "162.55.3.102",

@@ -15,10 +15,10 @@ const PORT = process.env.PORT || 3000;
 
 // Accounts to cycle through
 const accounts = [
-    { username: 'RiotHub', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
-    { username: 'Watchdogs', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
-    { username: 'ServerWatcher', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
-    { username: 'Updating', password: config['bot-account']['password'], auth: config['bot-account']['type'] }
+    { username: 'WatchDogs', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
+    { username: 'WatchDogs', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
+    { username: 'WatchDogs', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
+    { username: 'WatchDogs', password: config['bot-account']['password'], auth: config['bot-account']['type'] }
 ];
 
 let accountIndex = 0;

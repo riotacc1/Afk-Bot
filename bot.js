@@ -30,7 +30,7 @@ function createBot() {
     bot.pathfinder.setMovements(defaultMove);
 
     bot.once('spawn', () => {
-        logger.info("Bot joined to the server");
+        logger.info("Bot joined the server");
 
         // Auto-authentication
         if (config.utils['auto-auth'].enabled) {
@@ -105,6 +105,13 @@ function createBot() {
                 circleWalk(bot, radius);
             }
         }
+
+        // Disconnect and reconnect after 6 hours
+        setTimeout(() => {
+            logger.info("Bot disconnecting for auto-reconnect cycle.");
+            bot.end(); // This will trigger the 'end' event and auto-reconnect
+        }, 21600000); // 6 hours in milliseconds
+
     });
 
     bot.on('chat', (username, message) => {

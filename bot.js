@@ -13,22 +13,14 @@ const logger = loggers.logger;
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Accounts to cycle through
-const accounts = [
-    { username: 'WatchDog1', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
-    { username: 'WatchDog2', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
-    { username: 'WatchDog3', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
-    { username: 'WatchDog4', password: config['bot-account']['password'], auth: config['bot-account']['type'] }
-];
-
 let accountIndex = 0;
 
 function createBot() {
-    const account = accounts[accountIndex];
+    const account = config['bot-accounts'][accountIndex];
     const bot = mineflayer.createBot({
         username: account.username,
         password: account.password,
-        auth: account.auth,
+        auth: account.type,
         host: config.server.ip,
         port: config.server.port,
         version: config.server.version,
@@ -119,8 +111,7 @@ function createBot() {
         setTimeout(() => {
             logger.info(`${account.username} disconnecting for auto-reconnect cycle.`);
             bot.end(); // This will trigger the 'end' event and start the next bot
-        }, 21600000); // 6 hours in milliseconds
-
+        }, config.utils['auto-reconnect-delay']);
     });
 
     bot.on('chat', (username, message) => {
@@ -145,7 +136,8 @@ function createBot() {
 
     bot.on('end', () => {
         // Move to the next account
-        accountIndex = (accountIndex + 1) % accounts.length;
+        accountIndex = (accountIndex + 1) % config['bot-accounts'].length;
+        logger.info(`Starting next bot: ${config['bot-accounts'][accountIndex].username}`);
         setTimeout(() => {
             createBot();
         }, config.utils['auto-reconnect-delay']);

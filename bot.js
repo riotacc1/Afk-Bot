@@ -15,10 +15,10 @@ const PORT = process.env.PORT || 3000;
 
 // Accounts to cycle through
 const accounts = [
-    { username: 'WatchDogs', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
-    { username: 'WatchDogs', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
-    { username: 'WatchDogs', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
-    { username: 'WatchDogs', password: config['bot-account']['password'], auth: config['bot-account']['type'] }
+    { username: 'WatchDog1', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
+    { username: 'WatchDog2', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
+    { username: 'WatchDog3', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
+    { username: 'WatchDog4', password: config['bot-account']['password'], auth: config['bot-account']['type'] }
 ];
 
 let accountIndex = 0;

@@ -13,11 +13,22 @@ const logger = loggers.logger;
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Accounts to cycle through
+const accounts = [
+    { username: 'RiotHub', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
+    { username: 'Watchdogs', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
+    { username: 'ServerWatcher', password: config['bot-account']['password'], auth: config['bot-account']['type'] },
+    { username: 'Updating', password: config['bot-account']['password'], auth: config['bot-account']['type'] }
+];
+
+let accountIndex = 0;
+
 function createBot() {
+    const account = accounts[accountIndex];
     const bot = mineflayer.createBot({
-        username: config['bot-account']['username'],
-        password: config['bot-account']['password'],
-        auth: config['bot-account']['type'],
+        username: account.username,
+        password: account.password,
+        auth: account.auth,
         host: config.server.ip,
         port: config.server.port,
         version: config.server.version,
@@ -30,12 +41,12 @@ function createBot() {
     bot.pathfinder.setMovements(defaultMove);
 
     bot.once('spawn', () => {
-        logger.info("Bot joined the server");
+        logger.info(`${account.username} joined the server`);
 
         // Auto-authentication
         if (config.utils['auto-auth'].enabled) {
             logger.info('Started auto-auth module');
-            let password = config.utils['auto-auth'].password;
+            const password = config.utils['auto-auth'].password;
             setTimeout(() => {
                 bot.chat(`/register ${password} ${password}`);
                 bot.chat(`/login ${password}`);
@@ -46,15 +57,13 @@ function createBot() {
         // Chat messages
         if (config.utils['chat-messages'].enabled) {
             logger.info('Started chat-messages module');
-            let messages = config.utils['chat-messages']['messages'];
+            const messages = config.utils['chat-messages']['messages'];
             if (config.utils['chat-messages'].repeat) {
-                let delay = config.utils['chat-messages']['repeat-delay'];
+                const delay = config.utils['chat-messages']['repeat-delay'];
                 let i = 0;
                 setInterval(() => {
                     bot.chat(`${messages[i]}`);
-                    if (i + 1 === messages.length) {
-                        i = 0;
-                    } else i++;
+                    i = (i + 1) % messages.length;
                 }, delay * 1000);
             } else {
                 messages.forEach((msg) => {
@@ -81,11 +90,11 @@ function createBot() {
                 bot.setControlState('jump', true);
             }
             if (config.utils['anti-afk']['hit'].enabled) {
-                let delay = config.utils['anti-afk']['hit']['delay'];
-                let attackMobs = config.utils['anti-afk']['hit']['attack-mobs'];
+                const delay = config.utils['anti-afk']['hit']['delay'];
+                const attackMobs = config.utils['anti-afk']['hit']['attack-mobs'];
                 setInterval(() => {
                     if (attackMobs) {
-                        let entity = bot.nearestEntity(e => e.type !== 'object' && e.type !== 'player'
+                        const entity = bot.nearestEntity(e => e.type !== 'object' && e.type !== 'player'
                             && e.type !== 'global' && e.type !== 'orb' && e.type !== 'other');
                         if (entity) {
                             bot.attack(entity);
@@ -101,15 +110,15 @@ function createBot() {
                 }, 100);
             }
             if (config.utils['anti-afk']['circle-walk'].enabled) {
-                let radius = config.utils['anti-afk']['circle-walk']['radius'];
+                const radius = config.utils['anti-afk']['circle-walk']['radius'];
                 circleWalk(bot, radius);
             }
         }
 
-        // Disconnect and reconnect after 6 hours
+        // Disconnect and reconnect with next account after 6 hours
         setTimeout(() => {
-            logger.info("Bot disconnecting for auto-reconnect cycle.");
-            bot.end(); // This will trigger the 'end' event and auto-reconnect
+            logger.info(`${account.username} disconnecting for auto-reconnect cycle.`);
+            bot.end(); // This will trigger the 'end' event and start the next bot
         }, 21600000); // 6 hours in milliseconds
 
     });
@@ -134,26 +143,35 @@ function createBot() {
         );
     });
 
-    if (config.utils['auto-reconnect']) {
-        bot.on('end', () => {
-            setTimeout(() => {
-                createBot();
-            }, config.utils['auto-reconnect-delay']);
-        });
-    }
-
-    bot.on('kicked', (reason) => {
-        let reasonText = JSON.parse(reason).text;
-        if (reasonText === '') {
-            reasonText = JSON.parse(reason).extra[0].text;
-        }
-        reasonText = reasonText.replace(/§./g, '');
-        logger.warn(`Bot was kicked from the server. Reason: ${reasonText}`)
+    bot.on('end', () => {
+        // Move to the next account
+        accountIndex = (accountIndex + 1) % accounts.length;
+        setTimeout(() => {
+            createBot();
+        }, config.utils['auto-reconnect-delay']);
     });
 
-    bot.on('error', (err) =>
-        logger.error(`${err.message}`)
-    );
+    bot.on('kicked', (reason) => {
+        let reasonText = '';
+
+        try {
+            const parsedReason = JSON.parse(reason);
+            if (parsedReason.text) {
+                reasonText = parsedReason.text;
+            } else if (parsedReason.extra && parsedReason.extra[0] && parsedReason.extra[0].text) {
+                reasonText = parsedReason.extra[0].text;
+            }
+        } catch (e) {
+            logger.error(`Failed to parse kick reason: ${e.message}`);
+        }
+
+        reasonText = reasonText.replace(/§./g, '') || 'Unknown reason';
+        logger.warn(`Bot was kicked from the server. Reason: ${reasonText}`);
+    });
+
+    bot.on('error', (err) => {
+        logger.error(`An error occurred: ${err.message}`);
+    });
 }
 
 function circleWalk(bot, radius) {
